@@ -1,5 +1,5 @@
 os: windows
-language: generic
+language: shell
 install:
   - pip install pyinstaller
   - pip install -r requirements.txt
