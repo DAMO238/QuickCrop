@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
+import random
 import pathlib
 from tkinter import *
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
+from tkinter.simpledialog import askstring
 from PIL import Image, ImageTk
 
 class QuickCrop:
@@ -117,7 +119,7 @@ class QuickCrop:
         self.canvas.display = display
         self.canvas.itemconfigure(self.image_id, image=display)
 
-        self.rect = None
+        self.rect = []
         self.start_x = self.start_y = None
         self.x = self.y = 0
 
@@ -145,7 +147,7 @@ class QuickCrop:
         self.start_x = event.x
         self.start_y = event.y
 
-        self.rect = self.canvas.create_rectangle(self.x, self.y, 1, 1, outline='magenta', fill="black", stipple="gray50")
+        self.rect.append(self.canvas.create_rectangle(self.x, self.y, 1, 1, outline='magenta', fill="black", stipple="gray50"))
         self.cancelled = False
 
     def on_left_drag(self, event):
@@ -153,7 +155,7 @@ class QuickCrop:
             current_x, current_y = (event.x, event.y)
 
             # expand rectangle as you drag the mouse
-            self.canvas.coords(self.rect, self.start_x, self.start_y, current_x, current_y)
+            self.canvas.coords(self.rect[-1], self.start_x, self.start_y, current_x, current_y)
 
             self.crop_rectangle = (self.start_x - self.padding_x,
                 self.start_y - self.padding_y, 
@@ -186,14 +188,16 @@ class QuickCrop:
                     self.canvas.image = self.original_image
 
                 cropped_file_name = self.images[self.index]
-                cropped_image = self.canvas.image.crop(self.crop_rectangle).save(str(cropped_file_name))
+                cropped_image = self.canvas.image.crop(self.crop_rectangle).save(str(askstring("Label Required", "What letter was this crop?")) + str(random.randint(0,1000000000)) + ".png")
 
-            self.canvas.delete(self.rect)
-            self.next_image()
+            #self.canvas.delete(self.rect)
+            #self.next_image()
 
     # Right mouse, delete the current image
     def on_right_mouse_press(self, event):
-        os.remove((str(self.images[self.index])))
+        #os.remove((str(self.images[self.index])))
+        for r in self.rect:
+            self.canvas.delete(r)
         self.next_image()
     
     def on_right_mouse_release(self, event):
